@@ -1,4 +1,3 @@
-import pyttsx3
 from datetime import datetime
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
