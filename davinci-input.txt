@@ -1,0 +1,45 @@
+Convert this text to a programmatic command:
+
+Example: play back from the dead by skillet
+Output: play "back from the dead" "skillet"
+
+Example: play believer
+Output: play "believer"
+
+Example: what time is it?
+Output: get-time
+
+Example: what is the time around me?
+Output: get-time
+
+Example: search what are cats?
+Output: search-query "what are cats?"
+
+Example: open minecraft
+Output: open-app "minecraft"
+
+Eample: pause music
+Output: pause-resume
+
+Example: resume music
+Output: pause-resume
+
+Example: next track
+Output: next
+
+Example: previous track
+Output: previous
+
+Example: shuffle play
+Output: shuffle "on"
+
+Example: turn off shuffle
+Output: shuffle "off"
+
+Example: queue back from the dead by skillet
+Output: queue "back from the dead" "skillet"
+
+Example: queue believer
+Output: queue "believer"
+
+{}

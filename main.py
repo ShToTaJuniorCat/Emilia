@@ -2,7 +2,7 @@ from datetime import datetime
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from json import loads
-
+import openai
 # Literally everything possible to do with spotipy!
 scope = "ugc-image-upload " \
         "user-modify-playback-state " \
@@ -31,6 +31,7 @@ sp = spotipy.Spotify(
     auth_manager=SpotifyOAuth(scope=scope, client_id=credentials['client_id'], client_secret=credentials['client_secret'], redirect_uri=credentials['redirect_uri'])
 )
 
+openai.api_key = credentials["openai_api_key"]
 
 def get_time(args):
     return f"Now is {datetime.now().strftime('%H:%M:%S')}"
@@ -77,28 +78,28 @@ def play_track_by_name(args):
     return "Enjoy!"
 
 
-def queue_track_by_name(args):
+def queue(args):
     sp.add_to_queue(uri=get_uri(args.lower(), "track"))
     return "Enjoy!"
 
 
-def toggle_shuffle(args):
+def shuffle(args):
     sp.shuffle(args == "on")
     return f"Shuffle is now {args == 'on'}."
 
 
 def command_to_function(command):
     translator = {
-        "time": get_time,
+        "get-time": get_time,
         "search": search,
-        "open": start_app,
+        "open-app": start_app,
         "pause": play_pause_music,
         "resume": play_pause_music,
         "next": next_track,
         "previous": previous_track,
         "play": play_track_by_name,
-        "shuffle": toggle_shuffle,
-        "queue": queue_track_by_name
+        "shuffle": shuffle,
+        "queue": queue
     }
 
     try:
@@ -107,10 +108,34 @@ def command_to_function(command):
         return lambda args: "Unknown command."
 
 
+def text_to_command(text):
+    with open("davinci-input.txt", "r") as handle:
+        davinci_prompt = handle.read().format(text)
+
+    response = openai.Completion.create(
+        model="text-davinci-003",
+        prompt=davinci_prompt,
+        temperature=0,
+        max_tokens=100,
+        top_p=1.0,
+        frequency_penalty=0.2,
+        presence_penalty=0.0,
+        stop=["\n"]
+    )
+
+    finish_reason = response["choices"][0]["finish_reason"]
+    output = response["choices"][0]["text"].split("Output: ")[1]
+
+    if finish_reason == "stop":
+        return output
+    else:
+        raise Exception("Error! Finish reason: {finish_reason}")
+
+
 inp = input("> ")
 
 while inp != "exit":
-    inp = inp.split(" ")
+    inp = text_to_command(inp).split(" ")
     cmd = inp[0]
     args = None
 
